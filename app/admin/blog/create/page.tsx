@@ -41,12 +41,7 @@ export default function CreateBlogPage() {
     try {
       let media_url = ""
       if (selectedImage) {
-        media_url = await uploadImage(selectedImage, {
-          bucket: 'images',
-          folder: 'blog',
-          type: 'image',
-          maxSize: 10 * 1024 * 1024 // 10MB
-        })
+        media_url = await uploadImage(selectedImage)
       }
 
       await createBlogPost({

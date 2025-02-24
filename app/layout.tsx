@@ -14,9 +14,14 @@ export const metadata = {
   viewport: {
     width: 'device-width',
     initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
+    maximumScale: 5,
+    userScalable: true,
+    viewportFit: 'cover',
   },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' }
+  ],
 }
 
 export default function RootLayout({
@@ -25,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} min-h-screen font-sans antialiased bg-background text-foreground relative w-full overflow-x-hidden`}>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
+      <body className="min-h-[100dvh] font-sans antialiased bg-background text-foreground relative w-full overflow-x-hidden">
         <Providers>
           <ClientLayout>
             <main className="flex min-h-screen flex-col">

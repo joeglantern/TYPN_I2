@@ -3,40 +3,14 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { motion, useMotionValue, useTransform, animate } from "framer-motion"
-import { ArrowRight, CheckCircle, Globe, Users, Heart, ChevronRight, Mail, Star, MessageSquare } from "lucide-react"
+import { ArrowRight, CheckCircle, Users, Heart, ChevronRight, Mail, Star, MessageSquare } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { LogoStrip } from "@/components/LogoStrip"
-import dynamic from "next/dynamic"
 import { useEffect, useState, Suspense } from "react"
 import { HomeCarousel } from "@/components/HomeCarousel"
 import { createClient } from "@/utils/supabase/client"
 import ClientOnly from "@/components/ClientOnly"
-
-// Dynamic imports with no SSR
-const Earth3D = dynamic(() => import("@/components/Earth3D"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-sm text-muted-foreground">Loading globe...</p>
-      </div>
-    </div>
-  )
-})
-
-const ConnectedGlobe = dynamic(() => import("@/components/ConnectedGlobe"), {
-  ssr: false,
-  loading: () => (
-    <div className="relative h-[400px] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-sm text-muted-foreground">Loading globe...</p>
-      </div>
-    </div>
-  )
-})
 
 function AnimatedNumber({ value }: { value: number }) {
   const count = useMotionValue(0)
@@ -83,9 +57,9 @@ export default function HomePage() {
   }, [])
 
   return (
-    <main className="w-full">
+    <main className="w-full overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[100dvh] w-full flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <video
             autoPlay
@@ -100,8 +74,8 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/20" />
         </div>
 
-        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 max-w-[90rem] mx-auto">
-          <div className="flex flex-col items-center space-y-8">
+        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-3rem)] max-w-[90rem] mx-auto">
             {/* Logo at the top */}
             <motion.div
               initial={{ scale: 0, opacity: 0 }}
@@ -112,7 +86,7 @@ export default function HomePage() {
                 damping: 20,
                 duration: 0.5
               }}
-              className="relative w-32 h-32 md:w-40 md:h-40"
+              className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32"
             >
               <Image
                 src="/logo.png"
@@ -123,40 +97,40 @@ export default function HomePage() {
               />
             </motion.div>
 
-            {/* Content section with text and globe */}
-            <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12 w-full max-w-7xl mx-auto">
+            {/* Content section */}
+            <div className="flex flex-col items-center gap-6 sm:gap-8 w-full max-w-3xl mx-auto mt-6 sm:mt-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="flex flex-col items-center lg:items-start space-y-6 text-center lg:text-left"
+                className="flex flex-col items-center space-y-4 sm:space-y-6 text-center px-4"
               >
-                <h1 className="heading-responsive font-bold tracking-tighter text-white drop-shadow-lg">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter text-white drop-shadow-lg">
                   Empowering Youth
                   <br />
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#FF6B6B] via-[#4ECDC4] to-[#45B7D1] drop-shadow-lg">
                     Globally
                   </span>
                 </h1>
-                <p className="text-responsive text-white mx-auto lg:mx-0 drop-shadow font-medium max-w-[90vw] sm:max-w-[600px]">
+                <p className="text-sm sm:text-base md:text-lg text-white mx-auto drop-shadow font-medium max-w-[85vw] sm:max-w-[600px]">
                   Join the movement of young leaders creating positive change through connection and collaboration.
                 </p>
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 }}
-                  className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto"
+                  className="flex flex-col w-full sm:flex-row gap-3 sm:gap-4 max-w-xs sm:max-w-none"
                 >
-                  <Button size="lg" className="w-full sm:w-auto bg-[#4ECDC4] text-white hover:bg-[#45B7D1] shadow-lg">
+                  <Button size="lg" className="w-full sm:w-auto bg-[#4ECDC4] text-white hover:bg-[#45B7D1] shadow-lg text-sm sm:text-base h-10 sm:h-11">
                     Get Started <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border-white/50 shadow-lg">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border-white/50 shadow-lg text-sm sm:text-base h-10 sm:h-11">
                     Learn More
                   </Button>
                   <Button 
                     size="lg" 
                     variant="outline" 
-                    className="w-full sm:w-auto bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border-white/50 shadow-lg"
+                    className="w-full sm:w-auto bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm border-white/50 shadow-lg text-sm sm:text-base h-10 sm:h-11"
                     asChild
                   >
                     <Link href="/chat">
@@ -165,33 +139,6 @@ export default function HomePage() {
                     </Link>
                   </Button>
                 </motion.div>
-              </motion.div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="flex justify-center items-center"
-              >
-                <ClientOnly fallback={
-                  <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-                      <p className="text-sm text-muted-foreground">Loading globe...</p>
-                    </div>
-                  </div>
-                }>
-                  <Suspense fallback={
-                    <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-                        <p className="text-sm text-muted-foreground">Loading globe...</p>
-                      </div>
-                    </div>
-                  }>
-                    <Earth3D />
-                  </Suspense>
-                </ClientOnly>
               </motion.div>
             </div>
           </div>
@@ -202,11 +149,11 @@ export default function HomePage() {
       <LogoStrip />
 
       {/* Impact Numbers Section */}
-      <section className="w-full py-16 bg-background">
+      <section className="w-full py-8 sm:py-12 bg-background">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {[
-              { number: 52, label: "Countries", icon: Globe },
+              { number: 52, label: "Countries", icon: Users },
               { number: 10243, label: "Youth Impacted", icon: Users },
               { number: 127, label: "Projects", icon: Star },
               { number: 31, label: "Partners", icon: Heart }
@@ -217,15 +164,15 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="text-center p-6 rounded-xl border bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
+                className="text-center p-2 sm:p-3 md:p-4 rounded-lg border bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors"
               >
-                <stat.icon className="w-8 h-8 mx-auto mb-4 text-primary" />
-                <h3 className="text-4xl font-bold text-primary mb-2">
+                <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 mx-auto mb-2 text-primary" />
+                <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-primary mb-1">
                   <AnimatedNumber value={stat.number} />
-                  <span className="text-sm ml-1">+</span>
+                  <span className="text-xs sm:text-sm ml-0.5">+</span>
                 </h3>
-                <p className="text-muted-foreground">{stat.label}</p>
-                <p className="text-sm text-primary/60 mt-1 animate-pulse">Still counting...</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-[10px] sm:text-xs text-primary/60 mt-0.5 animate-pulse">Still counting...</p>
               </motion.div>
             ))}
           </div>
@@ -255,72 +202,29 @@ export default function HomePage() {
       {/* Global Network Section */}
       <section className="py-16 bg-muted/30">
         <div className="container-responsive max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="space-y-6"
-            >
-              <h2 className="text-4xl font-bold tracking-tighter">Global Network</h2>
-              <p className="text-lg text-muted-foreground">
-                Connect with youth leaders across continents, share ideas, and collaborate on impactful projects.
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                Global Youth Network
+              </h2>
+              <p className="text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+                Join our vibrant community of young leaders from around the world. Connect, collaborate, and create positive change together.
               </p>
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { title: "Regional Hubs", desc: "Active in 6 continents" },
-                  { title: "Local Chapters", desc: "Present in 50+ countries" },
-                  { title: "Online Community", desc: "24/7 collaboration" },
-                  { title: "Cultural Exchange", desc: "Cross-border programs" }
-                ].map((item, i) => (
-                  <div key={i} className="p-4 rounded-lg border bg-background/50 backdrop-blur-sm">
-                    <h3 className="font-semibold text-primary">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
                   </div>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative h-[400px]"
-            >
-              <ClientOnly fallback={
-                <div className="relative h-[400px] flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-sm text-muted-foreground">Loading globe...</p>
-                  </div>
-                </div>
-              }>
-                <Suspense fallback={
-                  <div className="relative h-[400px] flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-                      <p className="text-sm text-muted-foreground">Loading globe...</p>
-                    </div>
-                  </div>
-                }>
-                  <ConnectedGlobe />
-                </Suspense>
-              </ClientOnly>
-            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container-responsive">
+      <section className="py-8 sm:py-12 md:py-16 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-6 sm:mb-8"
           >
-            <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center justify-center mb-3 sm:mb-4">
               <motion.div
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
@@ -330,7 +234,7 @@ export default function HomePage() {
                   stiffness: 260,
                   damping: 20
                 }}
-                className="relative w-16 h-16"
+                className="relative w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16"
               >
                 <Image
                   src="/logo.png"
@@ -340,17 +244,17 @@ export default function HomePage() {
                 />
               </motion.div>
             </div>
-            <h2 className="heading-responsive font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-[#FF6B6B] via-[#4ECDC4] to-[#45B7D1]">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-[#FF6B6B] via-[#4ECDC4] to-[#45B7D1]">
               Our Core Initiatives
             </h2>
-            <p className="text-responsive mt-4 text-muted-foreground">
+            <p className="text-sm sm:text-base mt-2 text-muted-foreground">
               Discover how we're making a difference
             </p>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
             {[
               {
-                icon: Globe,
+                icon: Users,
                 title: "Global Network",
                 description: "Connect with youth leaders from around the world and expand your horizons.",
                 color: "text-[#FF6B6B]",
@@ -377,15 +281,15 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 }}
-                className="group relative overflow-hidden rounded-lg border bg-background p-6 hover:border-primary transition-colors card-hover"
+                className="group relative overflow-hidden rounded-lg border bg-background p-3 sm:p-4 md:p-6 hover:border-primary transition-colors card-hover"
               >
                 <div className={`absolute inset-0 ${feature.bgColor} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
-                <feature.icon className={`h-12 w-12 ${feature.color} mb-4`} />
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-responsive">{feature.description}</p>
-                <div className="mt-4">
-                  <Link href="#" className={`${feature.color} inline-flex items-center hover:underline`}>
-                    Learn more <ChevronRight className="ml-1 h-4 w-4" />
+                <feature.icon className={`h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10 ${feature.color} mb-2 sm:mb-3`} />
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">{feature.title}</h3>
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground">{feature.description}</p>
+                <div className="mt-2 sm:mt-3">
+                  <Link href="#" className={`${feature.color} inline-flex items-center hover:underline text-xs sm:text-sm`}>
+                    Learn more <ChevronRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
                   </Link>
                 </div>
               </motion.div>
@@ -395,11 +299,11 @@ export default function HomePage() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-12 bg-gradient-to-r from-[#FF6B6B] via-[#4ECDC4] to-[#45B7D1]">
-        <div className="container-responsive">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <section className="py-6 sm:py-8 md:py-12 bg-gradient-to-r from-[#FF6B6B] via-[#4ECDC4] to-[#45B7D1]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-center">
             <div className="text-white text-center lg:text-left">
-              <div className="flex items-center gap-4 mb-4 justify-center lg:justify-start">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 justify-center lg:justify-start">
                 <motion.div
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
@@ -409,7 +313,7 @@ export default function HomePage() {
                     stiffness: 260,
                     damping: 20
                   }}
-                  className="relative w-10 h-10"
+                  className="relative w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10"
                 >
                   <Image
                     src="/logo.png"
@@ -418,21 +322,37 @@ export default function HomePage() {
                     className="object-contain"
                   />
                 </motion.div>
-                <h3 className="text-2xl font-bold">Stay Connected</h3>
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold">Stay Connected</h3>
               </div>
-              <p className="text-white/90 text-responsive">
+              <p className="text-xs sm:text-sm md:text-base text-white/90">
                 Subscribe to our newsletter for updates and opportunities.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <Input
                 type="email"
                 placeholder="Enter your email"
-                className="bg-white/90 text-foreground placeholder:text-muted-foreground"
+                className="bg-white/90 text-foreground placeholder:text-muted-foreground h-9 sm:h-10 text-sm"
               />
-              <Button className="bg-[#FF6B6B] text-white hover:bg-[#45B7D1]">
+              <Button className="bg-[#FF6B6B] text-white hover:bg-[#45B7D1] whitespace-nowrap h-9 sm:h-10 text-sm">
                 <Mail className="mr-2 h-4 w-4" /> Subscribe
               </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Connected Communities Section */}
+      <section className="py-8 sm:py-12 md:py-16 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+            <div className="space-y-4 sm:space-y-6">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tighter">
+                Connected Communities
+              </h2>
+              <p className="text-sm sm:text-base md:text-lg text-gray-500 dark:text-gray-400">
+                Our platform connects youth organizations and individuals across borders, fostering collaboration and shared learning experiences.
+              </p>
             </div>
           </div>
         </div>

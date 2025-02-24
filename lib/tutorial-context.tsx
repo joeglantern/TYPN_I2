@@ -19,11 +19,7 @@ const TutorialContext = createContext<TutorialContextType>({
 export const tutorialSteps = [
   {
     title: "Welcome to TYPNI! 👋",
-    description: "Let's explore our interactive platform together! We've got some amazing features to show you.",
-  },
-  {
-    title: "Interactive Earth Globes 🌍",
-    description: "On our home page, you'll find two interactive 3D Earth globes. Try spinning them around! The first one shows our global presence, and the second visualizes our worldwide connections.",
+    description: "Let's take a quick tour of our platform. Click 'Next' to continue.",
   },
   {
     title: "AI Blog Reading Assistant 🎧",

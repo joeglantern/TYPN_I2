@@ -32,7 +32,7 @@ export default function ClientLayout({
     // Ensure minimum loading time for visual appeal
     const minLoadTimer = setTimeout(() => {
       setMinLoadingTimePassed(true)
-    }, 4500) // Show loading screen for 4.5 seconds minimum
+    }, 2000) // Reduced from 4.5s to 2s for better UX
 
     // Listen for route changes
     const handleStart = () => {
@@ -41,18 +41,15 @@ export default function ClientLayout({
     }
     
     const handleComplete = () => {
-      // Only hide loading when minimum time has passed
       if (minLoadingTimePassed) {
         setIsLoading(false)
       }
     }
 
-    // Add event listeners
     window.addEventListener('beforeunload', handleStart)
     document.addEventListener('DOMContentLoaded', handleComplete)
     window.addEventListener('load', handleComplete)
 
-    // Initial page load
     if (document.readyState === 'complete' && minLoadingTimePassed) {
       setIsLoading(false)
     }
@@ -65,49 +62,51 @@ export default function ClientLayout({
     }
   }, [minLoadingTimePassed])
 
-  // Watch for minLoadingTimePassed changes
   useEffect(() => {
     if (minLoadingTimePassed && document.readyState === 'complete') {
       setIsLoading(false)
     }
   }, [minLoadingTimePassed])
 
-  if (!mounted) {
-    return null
-  }
+  if (!mounted) return null
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <TutorialProvider>
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <motion.div
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2 }}
-            >
-              <LoadingScreen />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="content"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1.2 }}
-              className="relative flex min-h-screen flex-col bg-background"
-            >
-              {!isAdminRoute && <Header />}
-              <main className="flex-1">
-                {children}
-              </main>
-              {!isAdminRoute && <Footer />}
-              <Toaster />
-              <TutorialOverlay />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="min-h-[100dvh] flex flex-col bg-background">
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="fixed inset-0 z-50"
+              >
+                <LoadingScreen />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="content"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col min-h-[100dvh] relative w-full overflow-x-hidden"
+              >
+                {!isAdminRoute && <Header />}
+                <main className="flex-1 w-full">
+                  <div className="w-full overflow-x-hidden">
+                    {children}
+                  </div>
+                </main>
+                {!isAdminRoute && <Footer />}
+                <Toaster />
+                <TutorialOverlay />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </TutorialProvider>
     </ThemeProvider>
   )

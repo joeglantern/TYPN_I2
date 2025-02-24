@@ -59,6 +59,12 @@ export function TutorialOverlay() {
     }
   }
 
+  const features = [
+    { icon: Star, title: "Get Started", desc: "Learn about our platform" },
+    { icon: Mail, title: "Stay Connected", desc: "Join our newsletter" },
+    { icon: Bot, title: "AI Assistant", desc: "Chat with our AI helper" },
+  ]
+
   return (
     <AnimatePresence>
       <motion.div 

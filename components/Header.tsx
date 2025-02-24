@@ -2,15 +2,31 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
-import { ModeToggle } from "./ModeToggle"
+import { usePathname } from "next/navigation"
 import { Button } from "./ui/button"
-import { Home, Info, Layers, Users, Heart, BookOpen, Handshake, ImageIcon, User, LogOut, Settings, HelpCircle, Vote } from "lucide-react"
-import { MobileMenu } from "./MobileMenu"
-import { motion } from "framer-motion"
+import { 
+  Menu, 
+  X, 
+  Home,
+  BookOpen,
+  Users,
+  Calendar,
+  Image as ImageIcon,
+  Heart,
+  Info,
+  MessageSquare,
+  Vote,
+  Handshake,
+  ChevronRight,
+  LogOut,
+  User
+} from "lucide-react"
 import Image from "next/image"
-import { getSession, signOut, uploadAvatar } from "@/lib/supabase"
-import { useToast } from "@/components/ui/use-toast"
+import { ThemeToggle } from './theme-toggle'
+import { motion, AnimatePresence } from "framer-motion"
+import { ScrollArea } from "./ui/scroll-area"
+import { createClient } from "@/utils/supabase/client"
+import { useToast } from "./ui/use-toast"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,33 +35,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Loader2 } from "lucide-react"
-import { createClient } from "@/utils/supabase/client"
-import { useTutorial } from "@/lib/tutorial-context"
+import { useRouter } from "next/navigation"
 
-export default function Header() {
+export function Header() {
+  const [isOpen, setIsOpen] = useState(false)
   const [session, setSession] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [uploadingAvatar, setUploadingAvatar] = useState(false)
-  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false)
+  const pathname = usePathname()
   const { toast } = useToast()
   const router = useRouter()
-  const pathname = usePathname()
-  const { setShowTutorial } = useTutorial()
+  const supabase = createClient()
 
   useEffect(() => {
     checkSession()
-    const supabase = createClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session?.user?.email)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
       setLoading(false)
     })
@@ -53,182 +56,286 @@ export default function Header() {
   }, [])
 
   async function checkSession() {
-    try {
-      const supabase = createClient()
-      const { data: { session }, error } = await supabase.auth.getSession()
-      if (error) throw error
-      console.log('Current session:', session?.user?.email)
-      setSession(session)
-    } catch (error) {
-      console.error('Session error:', error)
-      setSession(null)
-    } finally {
-      setLoading(false)
-    }
+    const { data: { session } } = await supabase.auth.getSession()
+    setSession(session)
+    setLoading(false)
   }
 
   async function handleSignOut() {
-    try {
-      const supabase = createClient()
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
-      
-      setSession(null)
+    const { error } = await supabase.auth.signOut()
+    if (error) {
       toast({
-        title: "Success",
-        description: "Logged out successfully"
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
       })
-      
-      router.refresh()
+    } else {
       router.push('/')
-    } catch (error) {
-      console.error('Signout error:', error)
-      toast({
-        title: "Error",
-        description: "Failed to log out",
-        variant: "destructive"
-      })
     }
   }
 
-  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file || !session?.user?.id) return
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
 
-    setUploadingAvatar(true)
-    try {
-      const avatarUrl = await uploadAvatar(session.user.id, file)
-      setSession({
-        ...session,
-        user: {
-          ...session.user,
-          user_metadata: {
-            ...session.user.user_metadata,
-            avatar_url: avatarUrl
-          }
-        }
-      })
-      toast({
-        title: "Success",
-        description: "Avatar updated successfully"
-      })
-      setAvatarDialogOpen(false)
-    } catch (error) {
-      console.error('Avatar upload error:', error)
-      toast({
-        title: "Error",
-        description: "Failed to update avatar",
-        variant: "destructive"
-      })
-    } finally {
-      setUploadingAvatar(false)
+  // Prevent scrolling when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
     }
-  }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
 
-  const navLinks = [
+  const mainNavLinks = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/about", label: "About", icon: Info },
-    { href: "/programs", label: "Programs", icon: Layers },
-    { href: "/membership", label: "Membership", icon: Users },
-    { href: "/gallery", label: "Gallery", icon: ImageIcon },
-    { href: "/polls", label: "Polls", icon: Vote },
     { href: "/blog", label: "Blog", icon: BookOpen },
-    { href: "/partners", label: "Partners", icon: Handshake },
+    { href: "/programs", label: "Programs", icon: Users },
+    { href: "/events", label: "Events", icon: Calendar },
+    { href: "/gallery", label: "Gallery", icon: ImageIcon },
+  ]
+
+  const secondaryNavLinks = [
     { href: "/donate", label: "Donate", icon: Heart },
+    { href: "/about", label: "About", icon: Info },
+    { href: "/membership", label: "Membership", icon: Users },
+    { href: "/polls", label: "Polls", icon: Vote },
+    { href: "/partners", label: "Partners", icon: Handshake }
   ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="w-full max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center space-x-2">
-            <Image src="/logo.png" alt="TYPNI Logo" width={40} height={40} className="h-10 w-auto" />
-            <span className="hidden font-bold sm:inline-block">TYPNI</span>
+      <nav className="container h-14 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="relative w-8 h-8">
+              <Image
+                src="/logo.png"
+                alt="TYPNI Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <span className="font-bold hidden sm:inline-block">TYPNI</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 ${
-                  pathname === link.href ? 'text-primary' : ''
-                }`}
-              >
-                <link.icon className="h-4 w-4" />
-                {link.label}
-              </Link>
-            ))}
-          </nav>
         </div>
-        
-        <div className="flex items-center gap-4">
+
+        {/* Desktop navigation */}
+        <div className="hidden md:flex items-center gap-2">
+          {mainNavLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className={`text-sm ${pathname === link.href ? 'bg-muted' : ''}`}
+              >
+                <link.icon className="h-4 w-4 mr-2" />
+                {link.label}
+              </Button>
+            </Link>
+          ))}
+          {/* Additional Navigation Links */}
+          <Link href="/membership">
+            <Button variant="ghost" size="sm" className="text-sm">
+              <Users className="h-4 w-4 mr-2" />
+              Membership
+            </Button>
+          </Link>
+          <Link href="/donate">
+            <Button variant="ghost" size="sm" className="text-sm">
+              <Heart className="h-4 w-4 mr-2" />
+              Donate
+            </Button>
+          </Link>
+          <Link href="/partners">
+            <Button variant="ghost" size="sm" className="text-sm">
+              <Handshake className="h-4 w-4 mr-2" />
+              Partners
+            </Button>
+          </Link>
+          <Link href="/about">
+            <Button variant="ghost" size="sm" className="text-sm">
+              <Info className="h-4 w-4 mr-2" />
+              About
+            </Button>
+          </Link>
+          <ThemeToggle />
+          {!loading && (
+            session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/login">Sign In</Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </div>
+            )
+          )}
+        </div>
+
+        {/* Mobile menu button */}
+        <div className="flex md:hidden">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setShowTutorial(true)}
-            className="hidden md:flex"
+            className="relative z-50"
+            onClick={() => setIsOpen(!isOpen)}
           >
-            <HelpCircle className="h-5 w-5" />
+            {isOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
-          <ModeToggle />
-          {session ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  {session.user?.user_metadata?.avatar_url ? (
-                    <Image
-                      src={session.user.user_metadata.avatar_url}
-                      alt="Avatar"
-                      className="rounded-full object-cover"
-                      width={32}
-                      height={32}
-                    />
-                  ) : (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                      <User className="h-4 w-4" />
+        </div>
+
+        {/* Mobile navigation */}
+        <AnimatePresence>
+          {isOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+                onClick={() => setIsOpen(false)}
+              />
+              
+              {/* New Mobile Menu */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="fixed top-0 left-0 right-0 bg-background border-b shadow-lg z-50 md:hidden"
+              >
+                <div className="container py-4 space-y-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-8 h-8">
+                        <Image
+                          src="/logo.png"
+                          alt="TYPNI Logo"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <span className="font-bold">TYPNI</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ThemeToggle />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <X className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* User Section */}
+                  {!loading && (
+                    <div className="flex items-center justify-between gap-2 py-2 border-y">
+                      {session ? (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <User className="h-5 w-5" />
+                            <span className="font-medium text-sm truncate max-w-[200px]">
+                              {session.user.email}
+                            </span>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={handleSignOut}
+                            className="text-red-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50"
+                          >
+                            <LogOut className="h-4 w-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button size="sm" className="flex-1" asChild>
+                            <Link href="/signup">Sign Up</Link>
+                          </Button>
+                          <Button variant="outline" size="sm" className="flex-1" asChild>
+                            <Link href="/login">Sign In</Link>
+                          </Button>
+                        </>
+                      )}
                     </div>
                   )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  {session.user?.user_metadata?.full_name || session.user?.email}
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-                  <User className="mr-2 h-4 w-4" />
-                  Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setShowTutorial(true)}>
-                  <HelpCircle className="mr-2 h-4 w-4" />
-                  Tutorial
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-red-500 focus:text-red-500">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" onClick={() => router.push('/login')} className="hidden sm:flex">
-                Sign in
-              </Button>
-              <Button onClick={() => router.push('/signup')}>
-                Sign up
-              </Button>
-            </div>
+
+                  {/* Navigation Grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {[...mainNavLinks, ...secondaryNavLinks].map((link) => (
+                      <Link key={link.href} href={link.href}>
+                        <Button 
+                          variant={pathname === link.href ? "secondary" : "ghost"}
+                          size="sm"
+                          className="w-full justify-start text-sm"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <link.icon className="h-4 w-4 mr-2" />
+                          {link.label}
+                        </Button>
+                      </Link>
+                    ))}
+                  </div>
+
+                  {/* Quick Actions */}
+                  {session && (
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t">
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href="/dashboard">
+                          Dashboard
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href="/dashboard/settings">
+                          Settings
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </>
           )}
-          <div className="md:hidden">
-            <MobileMenu />
-          </div>
-        </div>
-      </div>
+        </AnimatePresence>
+      </nav>
     </header>
   )
 }

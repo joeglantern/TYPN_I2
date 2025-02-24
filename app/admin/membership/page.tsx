@@ -32,7 +32,7 @@ import {
   Filter,
   Loader2
 } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/utils/supabase/client"
 import { useToast } from "@/components/ui/use-toast"
 import {
   Dialog,
@@ -82,17 +82,18 @@ export default function MembershipManagement() {
       setLoading(true)
       console.log('Starting to fetch applications...')
 
+      const supabase = createClient()
       const { data: session } = await supabase.auth.getSession()
-      if (!session?.session?.user) {
+      if (!session?.user) {
         throw new Error('Not authenticated')
       }
-      console.log('User authenticated:', session.session.user.id)
+      console.log('User authenticated:', session.user.id)
 
       // Check if user is admin from users table
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('role')
-        .eq('id', session.session.user.id)
+        .eq('id', session.user.id)
         .single()
 
       console.log('User role check:', userData)
@@ -166,6 +167,12 @@ export default function MembershipManagement() {
     try {
       setLoading(true)
       
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
+        throw new Error('Not authenticated')
+      }
+      
       // Update application status
       const { error: updateError } = await supabase
         .from('membership_applications')
@@ -173,7 +180,7 @@ export default function MembershipManagement() {
           status: newStatus,
           reviewed_at: new Date().toISOString(),
           reviewer_notes: reviewNotes,
-          reviewed_by: (await supabase.auth.getSession()).data.session?.user.id,
+          reviewed_by: session.user.id,
         })
         .eq('id', id)
 
