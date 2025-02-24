@@ -48,17 +48,6 @@
 
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/*"
-  to = "/404"
-  status = 404
-
-[[redirects]]
-  from = "/*"
   to = "/.netlify/functions/next"
   status = 200
 
