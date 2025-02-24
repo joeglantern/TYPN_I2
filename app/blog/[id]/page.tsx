@@ -64,12 +64,7 @@ export default function BlogPost({ params }: PageProps) {
   }
 
   if (!post) {
-    return (
-      <div className="container py-8">
-        <h1 className="text-2xl font-bold mb-4">Blog post not found</h1>
-        <p className="text-muted-foreground">The requested blog post could not be found.</p>
-      </div>
-    )
+    return notFound()
   }
 
   return (
