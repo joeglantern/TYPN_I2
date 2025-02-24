@@ -1,0 +1,107 @@
+/* Custom cursor styles */
+.cursor-custom {
+  @apply fixed pointer-events-none z-50 mix-blend-difference;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.2s ease;
+}
+
+.cursor-custom.cursor-hover {
+  transform: scale(1.5);
+}
+
+/* Interactive elements cursor effects */
+a, button, [role="button"] {
+  cursor: pointer;
+}
+
+input, select, textarea {
+  cursor: text;
+}
+
+/* Custom cursor for different interactions */
+.cursor-link {
+  @apply fixed pointer-events-none z-50 mix-blend-difference;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid white;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.3s ease;
+}
+
+.cursor-link.active {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Text selection cursor */
+::selection {
+  @apply bg-primary/20 text-primary;
+}
+
+/* Drag cursor */
+[draggable="true"] {
+  cursor: grab;
+}
+
+[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Hover effects for interactive elements */
+.hover-trigger {
+  @apply relative overflow-hidden;
+}
+
+.hover-trigger::after {
+  content: '';
+  @apply absolute inset-0 bg-primary/10 opacity-0 transition-opacity duration-200;
+}
+
+.hover-trigger:hover::after {
+  @apply opacity-100;
+}
+
+/* Custom scrollbar cursor */
+::-webkit-scrollbar-thumb {
+  cursor: default;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  cursor: grab;
+}
+
+::-webkit-scrollbar-thumb:active {
+  cursor: grabbing;
+}
+
+/* Text input cursor */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  caret-color: hsl(var(--primary));
+  cursor: text;
+}
+
+/* Disabled element cursor */
+[disabled] {
+  cursor: not-allowed;
+}
+
+/* Loading cursor */
+.loading {
+  cursor: wait;
+}
+
+/* Help cursor */
+[data-tooltip] {
+  cursor: help;
+}
+
+/* Resize cursor */
+.resize-handle {
+  cursor: se-resize;
+} 
