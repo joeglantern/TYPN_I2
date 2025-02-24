@@ -8,30 +8,31 @@ import { createClient } from '@/lib/supabase/server'
 export async function createSupabaseServerClient() {
   const cookieStore = cookies()
   
-  return createClient({
-    cookies: {
-      async get(name: string) {
-        const cookie = await cookieStore.get(name)
-        return cookie?.value
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set(name, value, options)
+          } catch (error) {
+            console.error('Error setting cookie:', error)
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set(name, '', { ...options, maxAge: 0 })
+          } catch (error) {
+            console.error('Error removing cookie:', error)
+          }
+        },
       },
-      async set(name: string, value: string, options: CookieOptions) {
-        try {
-          cookieStore.set(name, value, options)
-        } catch (error) {
-          // Handle error setting cookie
-          console.error('Error setting cookie:', error)
-        }
-      },
-      async remove(name: string, options: CookieOptions) {
-        try {
-          cookieStore.set(name, '', { ...options, maxAge: 0 })
-        } catch (error) {
-          // Handle error removing cookie
-          console.error('Error removing cookie:', error)
-        }
-      },
-    },
-  })
+    }
+  )
 }
 
 interface BlogPost {
