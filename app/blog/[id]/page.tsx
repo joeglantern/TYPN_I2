@@ -3,18 +3,17 @@ import { BlogPostClient } from './BlogPostClient'
 import { notFound } from 'next/navigation'
 
 interface PageProps {
-  params: Promise<{
+  params: {
     id: string
-  }>
+  }
 }
 
 export default async function BlogPost({ params }: PageProps) {
-  const resolvedParams = await params
-  
   const { data: post, error } = await supabase
-    .from('blogs')
+    .from('content')
     .select('*')
-    .eq('id', resolvedParams.id)
+    .eq('id', params.id)
+    .eq('type', 'blog')
     .single()
 
   if (error) {

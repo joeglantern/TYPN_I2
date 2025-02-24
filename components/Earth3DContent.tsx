@@ -1,69 +1,127 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, useGLTF } from '@react-three/drei'
+import { useRef, useEffect, useState } from 'react'
+import Script from 'next/script'
 import * as THREE from 'three'
-import { ErrorBoundary } from 'react-error-boundary'
 
-function Earth() {
-  const earthRef = useRef<THREE.Mesh>(null)
-  const { scene } = useGLTF('/earth/scene.gltf')
+// Create a component that loads Three.js directly
+function ThreeScene() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<{
+    scene: THREE.Scene;
+    camera: THREE.PerspectiveCamera;
+    renderer: THREE.WebGLRenderer;
+    sphere: THREE.Mesh;
+    cleanup: () => void;
+  } | null>(null)
 
   useEffect(() => {
-    if (scene) {
-      scene.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.castShadow = true
-          child.receiveShadow = true
+    if (!containerRef.current || sceneRef.current) return
+
+    // Scene setup
+    const scene = new THREE.Scene()
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    
+    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight)
+    containerRef.current.appendChild(renderer.domElement)
+
+    // Create sphere
+    const geometry = new THREE.SphereGeometry(1, 32, 32)
+    const texture = new THREE.TextureLoader().load('/earth-texture.jpg')
+    texture.encoding = THREE.sRGBEncoding
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+
+    const material = new THREE.MeshStandardMaterial({
+      map: texture,
+      metalness: 0.4,
+      roughness: 0.7,
+    })
+
+    const sphere = new THREE.Mesh(geometry, material)
+    scene.add(sphere)
+
+    // Add lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+    scene.add(ambientLight)
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+    directionalLight.position.set(1, 1, 1)
+    scene.add(directionalLight)
+
+    // Position camera
+    camera.position.z = 2.5
+
+    // Animation
+    let animationFrameId: number
+
+    const animate = () => {
+      sphere.rotation.y += 0.002
+      renderer.render(scene, camera)
+      animationFrameId = requestAnimationFrame(animate)
+    }
+
+    // Handle resize
+    const handleResize = () => {
+      if (!containerRef.current) return
+      const width = containerRef.current.clientWidth
+      const height = containerRef.current.clientHeight
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+      renderer.setSize(width, height)
+    }
+
+    window.addEventListener('resize', handleResize)
+    animate()
+
+    // Store references for cleanup
+    sceneRef.current = {
+      scene,
+      camera,
+      renderer,
+      sphere,
+      cleanup: () => {
+        window.removeEventListener('resize', handleResize)
+        cancelAnimationFrame(animationFrameId)
+        renderer.dispose()
+        geometry.dispose()
+        material.dispose()
+        texture.dispose()
+        if (containerRef.current) {
+          containerRef.current.removeChild(renderer.domElement)
         }
-      })
+      }
     }
-  }, [scene])
 
-  useFrame(() => {
-    if (earthRef.current) {
-      earthRef.current.rotation.y += 0.002
+    return () => {
+      if (sceneRef.current) {
+        sceneRef.current.cleanup()
+        sceneRef.current = null
+      }
     }
-  })
+  }, [])
 
-  return <primitive ref={earthRef} object={scene} scale={1.5} />
-}
-
-function ErrorFallback() {
-  return (
-    <div className="h-full w-full flex items-center justify-center text-red-500">
-      Error loading 3D content
-    </div>
-  )
+  return <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
 }
 
 export default function Earth3DContent() {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  if (!isClient) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <div className="animate-pulse">Loading 3D content...</div>
+      </div>
+    )
+  }
+
   return (
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Canvas
-        shadows
-        camera={{
-          fov: 45,
-          near: 0.1,
-          far: 1000,
-          position: [0, 0, 5]
-        }}
-      >
-        <ambientLight intensity={0.5} />
-        <directionalLight 
-          position={[1, 1, 1]} 
-          castShadow
-          intensity={1}
-        />
-        <Earth />
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          minPolarAngle={Math.PI / 2}
-          maxPolarAngle={Math.PI / 2}
-        />
-      </Canvas>
-    </ErrorBoundary>
+    <div className="h-full w-full" style={{ height: '100%', minHeight: '400px' }}>
+      <ThreeScene />
+    </div>
   )
 } 

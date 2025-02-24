@@ -1,9 +1,17 @@
 "use client"
 
-import Image from 'next/image'
+import { Suspense, useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 
-export default function ConnectedGlobe() {
+// Dynamically import the entire Earth3D component instead of individual parts
+const Earth3D = dynamic(() => import('./Earth3DContent'), {
+  ssr: false,
+  loading: () => <Fallback />
+})
+
+function Fallback() {
   return (
     <div className="h-[400px] w-full relative overflow-hidden">
       {/* Animated globe */}
@@ -45,6 +53,33 @@ export default function ConnectedGlobe() {
         </motion.p>
         <p className="text-sm mt-1 text-white/70">Global Network</p>
       </div>
+    </div>
+  )
+}
+
+export default function ConnectedGlobe() {
+  const [is3DSupported, setIs3DSupported] = useState(false)
+
+  useEffect(() => {
+    // Check if WebGL is supported
+    try {
+      const canvas = document.createElement('canvas')
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+      setIs3DSupported(!!gl)
+    } catch (e) {
+      setIs3DSupported(false)
+    }
+  }, [])
+
+  if (!is3DSupported) {
+    return <Fallback />
+  }
+
+  return (
+    <div className="h-[400px] w-full relative">
+      <Suspense fallback={<Fallback />}>
+        <Earth3D />
+      </Suspense>
     </div>
   )
 } 
