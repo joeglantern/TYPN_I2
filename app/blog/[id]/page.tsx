@@ -1,5 +1,9 @@
-import { createClient } from "@/utils/supabase/server"
-import { format } from "date-fns"
+'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import { Loader2 } from 'lucide-react'
+import { format } from 'date-fns'
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -7,20 +11,65 @@ import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { BlogActions } from "../components/BlogActions"
 
-export const revalidate = 3600
+interface BlogPost {
+  id: string
+  title: string
+  content: string
+  description: string
+  media_url?: string
+  created_at: string
+  metadata: {
+    author_name?: string
+    author_avatar?: string
+  } | null
+}
 
-export default async function BlogPost({ params }: { params: { id: string } }) {
-  const supabase = createClient()
-  
-  const { data: post, error } = await supabase
-    .from('content')
-    .select('*')
-    .eq('id', params.id)
-    .eq('type', 'blog')
-    .single()
+interface PageProps {
+  params: {
+    id: string
+  }
+}
 
-  if (error || !post) {
-    notFound()
+export default function BlogPost({ params }: PageProps) {
+  const [post, setPost] = useState<BlogPost | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchPost() {
+      try {
+        const { data, error } = await supabase
+          .from('blogs')
+          .select('*')
+          .eq('id', params.id)
+          .single()
+
+        if (error) throw error
+        setPost(data)
+      } catch (error) {
+        console.error('Error fetching blog post:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPost()
+  }, [params.id])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (!post) {
+    return (
+      <div className="container py-8">
+        <h1 className="text-2xl font-bold mb-4">Blog post not found</h1>
+        <p className="text-muted-foreground">The requested blog post could not be found.</p>
+      </div>
+    )
   }
 
   return (

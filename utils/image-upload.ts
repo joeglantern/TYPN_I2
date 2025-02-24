@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/client"
+import { supabase } from '@/lib/supabase'
 
 const ALLOWED_FILE_TYPES = {
   image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
@@ -98,77 +99,61 @@ export async function validateFile(file: File, options: { type?: keyof typeof AL
   return true
 }
 
-export async function uploadImage(file: File, options: UploadOptions): Promise<string> {
-  // Validate inputs
-  if (!file) {
-    throw new Error('File is required')
-  }
-
-  if (!options || typeof options !== 'object') {
-    throw new Error('Upload options are required')
-  }
-
-  if (!options.bucket || typeof options.bucket !== 'string') {
-    throw new Error('Valid bucket name is required')
-  }
-
-  const supabase = createClient()
-  
+export async function uploadImage(file: File, bucket: string = 'gallery') {
   try {
-    // Check authentication first
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session?.user) {
-      throw new Error('Please sign in to upload files')
-    }
-
-    // Validate file first
-    await validateFile(file, {
-      type: options.type || 'image',
-      maxSize: options.maxSize
-    })
-
-    // Generate a unique file name with original extension
     const fileExt = file.name.split('.').pop()
     const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`
-    const filePath = options.folder ? `${options.folder}/${fileName}` : fileName
+    const filePath = `${fileName}`
 
-    console.log('Uploading file:', filePath, 'to bucket:', options.bucket)
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(filePath, file)
 
-    // Upload the file to Supabase Storage
-    const { data, error } = await supabase.storage
-      .from(options.bucket)
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      })
-
-    if (error) {
-      console.error('Error uploading file:', error)
-      if (error.message.includes('Unauthorized') || error.message.includes('row-level security')) {
-        throw new Error('You are not authorized to upload files. Please sign in.')
-      }
-      throw error
+    if (uploadError) {
+      throw uploadError
     }
 
-    if (!data?.path) {
-      throw new Error('Upload failed - no file path returned')
-    }
-
-    // Get the public URL
     const { data: { publicUrl } } = supabase.storage
-      .from(options.bucket)
-      .getPublicUrl(data.path)
+      .from(bucket)
+      .getPublicUrl(filePath)
 
     return publicUrl
   } catch (error) {
-    console.error('Error uploading file:', error)
-    throw new Error(error instanceof Error ? error.message : 'Failed to upload file')
+    console.error('Error uploading image:', error)
+    throw error
+  }
+}
+
+export async function uploadMultipleImages(files: File[], bucket: string = 'gallery') {
+  try {
+    const uploadPromises = files.map(file => uploadImage(file, bucket))
+    const urls = await Promise.all(uploadPromises)
+    return urls
+  } catch (error) {
+    console.error('Error uploading multiple images:', error)
+    throw error
+  }
+}
+
+export async function deleteImage(url: string) {
+  try {
+    const path = url.split('/').pop()
+    if (!path) throw new Error('Invalid image URL')
+
+    const { error } = await supabase.storage
+      .from('gallery')
+      .remove([path])
+
+    if (error) throw error
+  } catch (error) {
+    console.error('Error deleting image:', error)
+    throw error
   }
 }
 
 export async function uploadMultipleFiles(files: File[], options: UploadOptions): Promise<string[]> {
   try {
-    const uploadPromises = files.map(file => uploadImage(file, options))
+    const uploadPromises = files.map(file => uploadImage(file, options.bucket))
     return await Promise.all(uploadPromises)
   } catch (error) {
     console.error('Error uploading multiple files:', error)

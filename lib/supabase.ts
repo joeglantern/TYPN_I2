@@ -1,8 +1,21 @@
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@supabase/supabase-js'
+import { Database } from './database.types'
+
+export const supabase = createClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce'
+    }
+  }
+)
 
 // Auth functions
 export async function signUp(email: string, password: string, metadata: { full_name: string, username: string }) {
-  const supabase = createClient()
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -37,7 +50,6 @@ export async function signUp(email: string, password: string, metadata: { full_n
 }
 
 export async function signIn(email: string, password: string) {
-  const supabase = createClient()
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
@@ -54,13 +66,11 @@ export async function signIn(email: string, password: string) {
 }
 
 export async function signOut() {
-  const supabase = createClient()
   const { error } = await supabase.auth.signOut()
   if (error) throw error
 }
 
 export async function getSession() {
-  const supabase = createClient()
   const { data: { session }, error } = await supabase.auth.getSession()
   if (error) throw error
   return session
@@ -161,7 +171,6 @@ export interface Gallery {
 
 // Database helper functions
 export async function fetchBlogPosts() {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('blogs')
     .select('*')
@@ -172,7 +181,6 @@ export async function fetchBlogPosts() {
 }
 
 export async function fetchPrograms() {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('programs')
     .select('*')
@@ -183,7 +191,6 @@ export async function fetchPrograms() {
 }
 
 export async function fetchPartners() {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('partners')
     .select('*')
@@ -194,7 +201,6 @@ export async function fetchPartners() {
 }
 
 export async function fetchUsers() {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('users')
     .select('*')
@@ -205,7 +211,6 @@ export async function fetchUsers() {
 }
 
 export async function fetchDonations() {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('donations')
     .select('*')
@@ -216,7 +221,6 @@ export async function fetchDonations() {
 }
 
 export async function fetchMessages(userId: number) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('messages')
     .select('*')
@@ -228,7 +232,6 @@ export async function fetchMessages(userId: number) {
 }
 
 export async function fetchActivityLogs(userId?: number) {
-  const supabase = createClient()
   const query = supabase
     .from('activity_logs')
     .select('*')
@@ -244,8 +247,6 @@ export async function fetchActivityLogs(userId?: number) {
 }
 
 export async function fetchGalleryItems() {
-  const supabase = createClient()
-  
   try {
     console.log('Starting gallery fetch...')
     const { data, error, status } = await supabase
@@ -273,7 +274,6 @@ export async function fetchGalleryItems() {
 
 // Create functions
 export async function createBlogPost(post: Omit<Blog, 'id' | 'created_at' | 'updated_at'>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('blogs')
     .insert([post])
@@ -284,7 +284,6 @@ export async function createBlogPost(post: Omit<Blog, 'id' | 'created_at' | 'upd
 }
 
 export async function createProgram(program: Omit<Program, 'id' | 'created_at' | 'updated_at'>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('programs')
     .insert([program])
@@ -295,7 +294,6 @@ export async function createProgram(program: Omit<Program, 'id' | 'created_at' |
 }
 
 export async function createPartner(partner: Omit<Partner, 'id' | 'created_at' | 'updated_at'>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('partners')
     .insert([partner])
@@ -306,7 +304,6 @@ export async function createPartner(partner: Omit<Partner, 'id' | 'created_at' |
 }
 
 export async function createUser(user: Omit<User, 'id' | 'created_at' | 'updated_at'>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('users')
     .insert([user])
@@ -317,7 +314,6 @@ export async function createUser(user: Omit<User, 'id' | 'created_at' | 'updated
 }
 
 export async function createDonation(donation: Omit<Donation, 'id' | 'created_at' | 'updated_at'>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('donations')
     .insert([donation])
@@ -328,7 +324,6 @@ export async function createDonation(donation: Omit<Donation, 'id' | 'created_at
 }
 
 export async function createActivityLog(log: Omit<ActivityLog, 'id' | 'created_at'>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('activity_logs')
     .insert([log])
@@ -339,7 +334,6 @@ export async function createActivityLog(log: Omit<ActivityLog, 'id' | 'created_a
 }
 
 export async function createGalleryItem(item: Omit<Gallery, 'id' | 'created_at' | 'updated_at'>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('content')
     .insert([
@@ -356,7 +350,6 @@ export async function createGalleryItem(item: Omit<Gallery, 'id' | 'created_at' 
 
 // Update functions
 export async function updateBlogPost(id: number, updates: Partial<Blog>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('blogs')
     .update(updates)
@@ -368,7 +361,6 @@ export async function updateBlogPost(id: number, updates: Partial<Blog>) {
 }
 
 export async function updateProgram(id: number, updates: Partial<Program>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('programs')
     .update(updates)
@@ -380,7 +372,6 @@ export async function updateProgram(id: number, updates: Partial<Program>) {
 }
 
 export async function updatePartner(id: number, updates: Partial<Partner>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('partners')
     .update(updates)
@@ -392,7 +383,6 @@ export async function updatePartner(id: number, updates: Partial<Partner>) {
 }
 
 export async function updateUser(id: number, updates: Partial<User>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('users')
     .update(updates)
@@ -404,7 +394,6 @@ export async function updateUser(id: number, updates: Partial<User>) {
 }
 
 export async function updateDonation(id: number, updates: Partial<Donation>) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('donations')
     .update(updates)
@@ -420,7 +409,6 @@ export async function updateGalleryItem(id: number, updates: {
   description?: string
   show_in_carousel?: boolean
 }) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('gallery')
     .update(updates)
@@ -438,7 +426,6 @@ export async function updateGalleryItem(id: number, updates: {
 
 // Delete functions
 export async function deleteBlogPost(id: number) {
-  const supabase = createClient()
   const { error } = await supabase
     .from('blogs')
     .delete()
@@ -448,7 +435,6 @@ export async function deleteBlogPost(id: number) {
 }
 
 export async function deleteProgram(id: number) {
-  const supabase = createClient()
   const { error } = await supabase
     .from('programs')
     .delete()
@@ -458,7 +444,6 @@ export async function deleteProgram(id: number) {
 }
 
 export async function deletePartner(id: number) {
-  const supabase = createClient()
   const { error } = await supabase
     .from('partners')
     .delete()
@@ -468,7 +453,6 @@ export async function deletePartner(id: number) {
 }
 
 export async function deleteUser(id: number) {
-  const supabase = createClient()
   const { error } = await supabase
     .from('users')
     .delete()
@@ -478,7 +462,6 @@ export async function deleteUser(id: number) {
 }
 
 export async function deleteDonation(id: number) {
-  const supabase = createClient()
   const { error } = await supabase
     .from('donations')
     .delete()
@@ -488,8 +471,6 @@ export async function deleteDonation(id: number) {
 }
 
 export async function deleteGalleryItem(id: number) {
-  const supabase = createClient()
-  
   try {
     // First, get the image URL to delete from storage
     const { data: item } = await supabase
@@ -532,8 +513,6 @@ export async function createContent(data: {
   media_url?: string
   show_in_carousel?: boolean
 }) {
-  const supabase = createClient()
-  
   try {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session?.user) {
@@ -589,8 +568,6 @@ export async function updateContent(id: string, data: Partial<{
   media_url: string
   show_in_carousel: boolean
 }>) {
-  const supabase = createClient()
-  
   const { data: result, error } = await supabase
     .from('content')
     .update(data)
@@ -607,7 +584,6 @@ export async function updateContent(id: string, data: Partial<{
 }
 
 export async function deleteContent(id: string) {
-  const supabase = createClient()
   const { error } = await supabase
     .from('content')
     .delete()
@@ -620,7 +596,6 @@ export async function deleteContent(id: string) {
 export async function uploadAvatar(userId: string, file: File) {
   try {
     // Upload the file to storage
-    const supabase = createClient()
     const fileExt = file.name.split('.').pop()
     const fileName = `${userId}-${Math.random()}.${fileExt}`
     const { error: uploadError, data } = await supabase.storage
@@ -655,7 +630,6 @@ export async function updateUserProfile(userId: string, updates: {
   bio?: string
   chapter?: string
 }) {
-  const supabase = createClient()
   const { data, error } = await supabase
     .from('users')
     .update(updates)
