@@ -2,10 +2,9 @@ import { supabase } from '@/lib/supabase'
 import { BlogPostClient } from './BlogPostClient'
 import { notFound } from 'next/navigation'
 
-interface PageProps {
-  params: {
-    id: string
-  }
+type PageProps = {
+  params: { id: string }
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
 export default async function BlogPost({ params }: PageProps) {
