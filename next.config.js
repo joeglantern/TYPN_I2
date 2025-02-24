@@ -6,9 +6,19 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'mhwgbmgsnkrbaxvewjxy.supabase.co',
       },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
     ],
   },
   transpilePackages: ['three'],
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
   webpack: (config) => {
     // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find((rule) =>
