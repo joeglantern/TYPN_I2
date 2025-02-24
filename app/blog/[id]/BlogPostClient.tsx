@@ -12,6 +12,7 @@ export interface BlogPost {
   title: string
   content: string
   description: string
+  type: 'blog'
   media_url?: string
   created_at: string
   metadata?: {
@@ -39,11 +40,10 @@ export function BlogPostClient({ post }: BlogPostClientProps) {
       <article className="max-w-4xl mx-auto">
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
-          {post.metadata?.author && (
-            <p className="text-gray-600 mb-2">
-              By {post.metadata.author} · {format(new Date(post.created_at), 'MMMM d, yyyy')}
-            </p>
-          )}
+          <p className="text-gray-600 mb-2">
+            {post.metadata?.author && `By ${post.metadata.author} · `}
+            {format(new Date(post.created_at), 'MMMM d, yyyy')}
+          </p>
           {post.metadata?.readTime && (
             <p className="text-gray-500">{post.metadata.readTime} min read</p>
           )}
@@ -56,6 +56,7 @@ export function BlogPostClient({ post }: BlogPostClientProps) {
               alt={post.title}
               fill
               className="object-cover rounded-lg"
+              priority
             />
           </div>
         )}

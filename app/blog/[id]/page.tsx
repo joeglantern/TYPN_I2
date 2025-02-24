@@ -1,13 +1,28 @@
+import { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
 import { BlogPostClient } from './BlogPostClient'
 import { notFound } from 'next/navigation'
 
-type PageProps = {
-  params: { id: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+interface Props {
+  params: {
+    id: string;
+  };
 }
 
-export default async function BlogPost({ params }: PageProps) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { data: post } = await supabase
+    .from('content')
+    .select('title,description')
+    .eq('id', params.id)
+    .single()
+
+  return {
+    title: post?.title || 'Blog Post',
+    description: post?.description || 'Loading blog post...',
+  }
+}
+
+export default async function BlogPost({ params }: Props) {
   const { data: post, error } = await supabase
     .from('content')
     .select('*')
