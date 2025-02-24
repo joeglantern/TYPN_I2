@@ -10,7 +10,13 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 export const metadata = {
   title: "TYPNI - The Young People's Network International",
   description: "Empowering youth globally through connection and collaboration",
-  generator: 'v0.dev'
+  generator: 'v0.dev',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 }
 
 export default function RootLayout({
@@ -20,13 +26,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body className={`${inter.variable} min-h-screen font-sans antialiased bg-background text-foreground`}>
+      <body className={`${inter.variable} min-h-screen font-sans antialiased bg-background text-foreground relative w-full overflow-x-hidden`}>
         <Providers>
           <ClientLayout>
-            {children}
+            <main className="flex min-h-screen flex-col">
+              {children}
+            </main>
           </ClientLayout>
         </Providers>
       </body>

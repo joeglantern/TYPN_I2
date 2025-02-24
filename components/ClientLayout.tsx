@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
+import { Header } from "@/components/Header"
+import { Footer } from "@/components/Footer"
 import { Toaster } from "@/components/ui/toaster"
 import { usePathname } from 'next/navigation'
 import LoadingScreen from "@/components/LoadingScreen"
