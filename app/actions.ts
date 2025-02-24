@@ -3,35 +3,35 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@/lib/supabase/server'
 
-async function createServerSupabaseClient() {
+export async function createSupabaseServerClient() {
   const cookieStore = cookies()
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // Handle cookie error
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            // Handle cookie error
-          }
-        },
+  
+  return createClient({
+    cookies: {
+      async get(name: string) {
+        const cookie = await cookieStore.get(name)
+        return cookie?.value
       },
-    }
-  )
+      async set(name: string, value: string, options: CookieOptions) {
+        try {
+          cookieStore.set(name, value, options)
+        } catch (error) {
+          // Handle error setting cookie
+          console.error('Error setting cookie:', error)
+        }
+      },
+      async remove(name: string, options: CookieOptions) {
+        try {
+          cookieStore.set(name, '', { ...options, maxAge: 0 })
+        } catch (error) {
+          // Handle error removing cookie
+          console.error('Error removing cookie:', error)
+        }
+      },
+    },
+  })
 }
 
 interface BlogPost {
