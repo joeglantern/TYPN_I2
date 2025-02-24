@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
@@ -44,8 +45,8 @@
     "@react-spring/three": "^9.7.3",
     "@react-three/drei": "^9.99.0",
     "@react-three/fiber": "^8.15.16",
-    "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.48.1",
+    "@supabase/ssr": "^0.1.0",
+    "@supabase/supabase-js": "^2.39.0",
     "@tiptap/extension-image": "^2.11.5",
     "@tiptap/extension-link": "^2.11.5",
     "@tiptap/react": "^2.11.5",
@@ -65,12 +66,12 @@
     "input-otp": "1.4.1",
     "lucide-react": "^0.454.0",
     "microsoft-cognitiveservices-speech-sdk": "^1.42.0",
-    "next": "^15.1.7",
+    "next": "^14.1.0",
     "next-themes": "latest",
     "react": "^18.2.0",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.2.0",
-    "react-error-boundary": "^5.0.0",
+    "react-error-boundary": "^4.0.12",
     "react-hook-form": "^7.54.1",
     "react-icons": "latest",
     "react-markdown": "^10.0.0",
@@ -87,11 +88,12 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.16",
-    "@types/node": "22.13.5",
-    "@types/react": "18.3.18",
-    "@types/react-dom": "^18",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.17",
-    "typescript": "5.7.3"
+    "@types/node": "20.11.0",
+    "@types/react": "18.2.0",
+    "@types/react-dom": "18.2.0",
+    "encoding": "^0.1.13",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "5.3.3"
   }
 }
