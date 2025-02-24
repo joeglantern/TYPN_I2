@@ -3,7 +3,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { createClient } from '@/lib/supabase/server'
 
 export async function createSupabaseServerClient() {
   const cookieStore = cookies()
@@ -43,7 +42,7 @@ interface BlogPost {
 }
 
 export async function createBlogPost(data: BlogPost) {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createSupabaseServerClient()
 
   const { error } = await supabase
     .from('content')
@@ -66,7 +65,7 @@ export async function createBlogPost(data: BlogPost) {
 }
 
 export async function getPrograms() {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createSupabaseServerClient()
   
   const { data: programs } = await supabase
     .from('content')
@@ -86,7 +85,7 @@ export async function createProgram(data: {
   duration?: string
   location?: string
 }) {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createSupabaseServerClient()
 
   const { error } = await supabase
     .from('content')
@@ -113,7 +112,7 @@ export async function createGalleryItem(data: {
   description: string
   media_url: string
 }) {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createSupabaseServerClient()
 
   const { error } = await supabase
     .from('content')
@@ -144,7 +143,7 @@ export async function createEvent(data: {
   end_date?: string
   location?: string
 }) {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createSupabaseServerClient()
 
   const { error } = await supabase
     .from('content')
@@ -167,7 +166,7 @@ export async function createEvent(data: {
 }
 
 export async function getBlogPosts() {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createSupabaseServerClient()
   
   const { data: posts } = await supabase
     .from('content')
@@ -180,7 +179,7 @@ export async function getBlogPosts() {
 }
 
 export async function getBlogPost(id: string) {
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createSupabaseServerClient()
   
   const { data: post } = await supabase
     .from('content')
