@@ -1,44 +1,34 @@
 "use client"
 
-import { useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, useGLTF } from '@react-three/drei'
-import * as THREE from 'three'
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
 
-function Earth() {
-  const earthRef = useRef<THREE.Mesh>(null)
-  const { scene } = useGLTF('/earth/scene.gltf')
-
-  useFrame(() => {
-    if (earthRef.current) {
-      earthRef.current.rotation.y += 0.002
-    }
-  })
-
-  return <primitive ref={earthRef} object={scene} scale={1.5} />
-}
+// Dynamically import the Earth component with no SSR
+const Earth3DContent = dynamic(
+  () => import('./Earth3DContent'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] w-full flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+)
 
 export default function Earth3D() {
   return (
     <div className="h-[400px] w-full">
-      <Canvas
-        camera={{
-          fov: 45,
-          near: 0.1,
-          far: 1000,
-          position: [0, 0, 5]
-        }}
+      <Suspense
+        fallback={
+          <div className="h-full w-full flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        }
       >
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[1, 1, 1]} />
-        <Earth />
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          minPolarAngle={Math.PI / 2}
-          maxPolarAngle={Math.PI / 2}
-        />
-      </Canvas>
+        <Earth3DContent />
+      </Suspense>
     </div>
   )
 } 
