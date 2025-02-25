@@ -9,10 +9,10 @@ const ALLOWED_FILE_TYPES = {
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
-interface UploadOptions {
-  bucket: string
+export interface UploadOptions {
+  bucket?: string
   folder?: string
-  type?: keyof typeof ALLOWED_FILE_TYPES
+  type?: 'image'
   maxSize?: number
 }
 
@@ -99,29 +99,41 @@ export async function validateFile(file: File, options: { type?: keyof typeof AL
   return true
 }
 
-export async function uploadImage(file: File, bucket: string = 'gallery') {
-  try {
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`
-    const filePath = `${fileName}`
+export async function uploadImage(file: File, options: UploadOptions = {}): Promise<string> {
+  const supabase = createClient()
+  
+  if (!file) {
+    throw new Error('No file provided')
+  }
 
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file)
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    throw new Error('File must be an image')
+  }
 
-    if (uploadError) {
-      throw uploadError
-    }
+  // Validate file size (default 10MB max)
+  const maxSize = options.maxSize || 10 * 1024 * 1024
+  if (file.size > maxSize) {
+    throw new Error(`File size must be less than ${Math.round(maxSize / (1024 * 1024))}MB`)
+  }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath)
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+  const filePath = `${options.folder || 'uploads'}/${fileName}`
 
-    return publicUrl
-  } catch (error) {
-    console.error('Error uploading image:', error)
+  const { data, error } = await supabase.storage
+    .from(options.bucket || 'images')
+    .upload(filePath, file)
+
+  if (error) {
     throw error
   }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from(options.bucket || 'images')
+    .getPublicUrl(filePath)
+
+  return publicUrl
 }
 
 export async function uploadMultipleImages(files: File[], bucket: string = 'gallery') {
@@ -153,7 +165,7 @@ export async function deleteImage(url: string) {
 
 export async function uploadMultipleFiles(files: File[], options: UploadOptions): Promise<string[]> {
   try {
-    const uploadPromises = files.map(file => uploadImage(file, options.bucket))
+    const uploadPromises = files.map(file => uploadImage(file, options))
     return await Promise.all(uploadPromises)
   } catch (error) {
     console.error('Error uploading multiple files:', error)

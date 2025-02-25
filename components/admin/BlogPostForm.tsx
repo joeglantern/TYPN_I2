@@ -96,14 +96,12 @@ export function BlogPostForm({ onSubmit, initialData }: BlogPostFormProps) {
 
       if (selectedImage) {
         try {
-          const uploadOptions = {
+          media_url = await uploadImage(selectedImage, {
             bucket: 'images',
             folder: 'blog',
-            type: 'image' as const,
+            type: 'image',
             maxSize: 10 * 1024 * 1024
-          }
-          
-          media_url = await uploadImage(selectedImage, uploadOptions)
+          })
         } catch (error) {
           throw error
         }

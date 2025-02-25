@@ -77,7 +77,7 @@ export function BlogUploadDialog({ onClose }: BlogUploadDialogProps) {
           bucket: 'images',
           folder: 'blog',
           type: 'image',
-          maxSize: 10 * 1024 * 1024 // 10MB
+          maxSize: 10 * 1024 * 1024
         })
       } catch (uploadError) {
         console.error('Error uploading featured image:', uploadError)
@@ -92,7 +92,7 @@ export function BlogUploadDialog({ onClose }: BlogUploadDialogProps) {
             bucket: 'images',
             folder: 'avatars',
             type: 'image',
-            maxSize: 2 * 1024 * 1024 // 2MB
+            maxSize: 2 * 1024 * 1024
           })
         } catch (avatarError) {
           console.error('Error uploading avatar:', avatarError)
@@ -110,7 +110,7 @@ export function BlogUploadDialog({ onClose }: BlogUploadDialogProps) {
           status: 'published',
           media_url,
           metadata: {
-            content: content.trim(), // Store content in metadata
+            content: content.trim(),
             author_name: authorName.trim(),
             author_avatar
           }

@@ -19,34 +19,32 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
 
   useEffect(() => {
-    const supabase = createClient()
+    async function checkSession() {
+      try {
+        const supabase = createClient()
+        const { data: { session } } = await supabase.auth.getSession()
 
-    // Check if already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        // Check if user is admin
-        supabase
-          .from('users')
-          .select('role')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data: profile }) => {
-            if (profile?.role === 'admin') {
-              const redirect = searchParams.get('redirect') || '/admin'
-              router.replace(redirect)
-              return
-            }
-            setIsLoading(false)
-          })
-          .catch(() => {
-            setIsLoading(false)
-          })
-      } else {
+        if (session) {
+          const { data: profile } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+
+          if (profile?.role === 'admin') {
+            const redirect = searchParams.get('redirect') || '/admin'
+            router.replace(redirect)
+            return
+          }
+        }
+      } catch (error) {
+        console.error('Session check error:', error)
+      } finally {
         setIsLoading(false)
       }
-    }).catch(() => {
-      setIsLoading(false)
-    })
+    }
+
+    checkSession()
   }, [router, searchParams])
 
   const handleLogin = async (e: React.FormEvent) => {

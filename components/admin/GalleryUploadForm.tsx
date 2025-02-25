@@ -95,23 +95,24 @@ export function GalleryUploadForm({ onSubmit, editingItem }: GalleryUploadFormPr
         }
       } else {
         // Upload multiple images
-      let successCount = 0
+        let successCount = 0
         for (const image of selectedImages) {
           try {
             const media_url = await uploadImage(image.file, {
-              bucket: 'gallery',
+              bucket: 'images',
+              folder: 'gallery',
               type: 'image',
-              maxSize: 10 * 1024 * 1024 // 10MB
+              maxSize: 10 * 1024 * 1024
             })
-          
-          if (!media_url) {
+
+            if (!media_url) {
               throw new Error('Failed to upload image')
             }
 
             const success = await onSubmit({
               title: image.title || title || '',
               description: image.description || description || '',
-            media_url,
+              media_url,
               show_in_carousel: image.showInCarousel || showInCarousel
             })
 
