@@ -29,10 +29,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import { Plus, Pencil, Trash2, ArrowUpDown } from "lucide-react"
+import { Plus, Pencil, Trash2, ArrowUp, ArrowDown } from "lucide-react"
 import Image from "next/image"
-import type { DraggableProvided, DroppableProvided, DropResult } from "@hello-pangea/dnd"
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
 
 interface CarouselItem {
   id: number
@@ -139,14 +137,20 @@ export default function CarouselPage() {
     }
   }
 
-  async function handleDragEnd(result: DropResult) {
-    if (!result.destination) return
+  async function handleMoveItem(id: number, direction: 'up' | 'down') {
+    const currentIndex = items.findIndex(item => item.id === id)
+    if (
+      (direction === 'up' && currentIndex === 0) ||
+      (direction === 'down' && currentIndex === items.length - 1)
+    ) {
+      return
+    }
 
-    const newItems = Array.from(items)
-    const [reorderedItem] = newItems.splice(result.source.index, 1)
-    newItems.splice(result.destination.index, 0, reorderedItem)
+    const newItems = [...items]
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+    const [movedItem] = newItems.splice(currentIndex, 1)
+    newItems.splice(targetIndex, 0, movedItem)
 
-    // Update order_index for all items
     const updates = newItems.map((item, index) => ({
       id: item.id,
       order_index: index
@@ -240,79 +244,73 @@ export default function CarouselPage() {
         </Dialog>
       </div>
 
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable droppableId="carousel-items">
-          {(provided: DroppableProvided): React.ReactElement => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {items.map((item, index) => (
-                <Draggable
-                  key={item.id}
-                  draggableId={item.id.toString()}
-                  index={index}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {items.map((item, index) => (
+          <Card key={item.id} className="group relative">
+            <CardHeader>
+              <CardTitle className="line-clamp-1">{item.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {item.media_type === 'image' ? (
+                <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <Image
+                    src={item.media_url}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                  <video
+                    src={item.media_url}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                {item.description}
+              </p>
+            </CardContent>
+            <CardFooter className="justify-between">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleMoveItem(item.id, 'up')}
+                  disabled={index === 0}
                 >
-                  {(dragProvided: DraggableProvided): React.ReactElement => (
-                    <div
-                      ref={dragProvided.innerRef}
-                      {...dragProvided.draggableProps}
-                      {...dragProvided.dragHandleProps}
-                      className="group relative"
-                    >
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="line-clamp-1">{item.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          {item.media_type === 'image' ? (
-                            <div className="relative aspect-video rounded-lg overflow-hidden">
-                              <Image
-                                src={item.media_url}
-                                alt={item.title}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                          ) : (
-                            <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
-                              <video
-                                src={item.media_url}
-                                className="absolute inset-0 w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-                          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-                            {item.description}
-                          </p>
-                        </CardContent>
-                        <CardFooter className="justify-between">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setIsEditing(item.id)}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(item.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+                  <ArrowUp className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleMoveItem(item.id, 'down')}
+                  disabled={index === items.length - 1}
+                >
+                  <ArrowDown className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsEditing(item.id)}
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
   )
 } 
