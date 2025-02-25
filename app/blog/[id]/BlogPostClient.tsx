@@ -15,7 +15,7 @@ export interface BlogPost {
   media_url?: string
   created_at: string
   metadata?: {
-    author?: string
+    author_name?: string
     readTime?: string
   }
 }
@@ -39,9 +39,9 @@ export function BlogPostClient({ post }: BlogPostClientProps) {
       <article className="max-w-4xl mx-auto">
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
-          {post.metadata?.author && (
+          {post.metadata?.author_name && (
           <p className="text-gray-600 mb-2">
-              By {post.metadata.author} · {format(new Date(post.created_at), 'MMMM d, yyyy')}
+              By {post.metadata.author_name} · {format(new Date(post.created_at), 'MMMM d, yyyy')}
           </p>
           )}
           {post.metadata?.readTime && (
@@ -65,7 +65,12 @@ export function BlogPostClient({ post }: BlogPostClientProps) {
         </div>
 
         <div className="mt-8">
-          <BlogActions post={post} />
+          <BlogActions 
+            title={post.title}
+            description={post.description}
+            content={post.content}
+            metadata={post.metadata}
+          />
         </div>
       </article>
     </div>
