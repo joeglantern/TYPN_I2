@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useState, useEffect } from "react"
 import { createClient } from "@/utils/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -241,10 +242,10 @@ export default function CarouselPage() {
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="carousel-items">
-          {(droppableProvided: DroppableProvided) => (
+          {(provided: DroppableProvided): React.ReactElement => (
             <div
-              {...droppableProvided.droppableProps}
-              ref={droppableProvided.innerRef}
+              {...provided.droppableProps}
+              ref={provided.innerRef}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {items.map((item, index) => (
@@ -253,11 +254,11 @@ export default function CarouselPage() {
                   draggableId={item.id.toString()}
                   index={index}
                 >
-                  {(draggableProvided: DraggableProvided) => (
+                  {(dragProvided: DraggableProvided): React.ReactElement => (
                     <div
-                      ref={draggableProvided.innerRef}
-                      {...draggableProvided.draggableProps}
-                      {...draggableProvided.dragHandleProps}
+                      ref={dragProvided.innerRef}
+                      {...dragProvided.draggableProps}
+                      {...dragProvided.dragHandleProps}
                       className="group relative"
                     >
                       <Card>
@@ -307,7 +308,7 @@ export default function CarouselPage() {
                   )}
                 </Draggable>
               ))}
-              {droppableProvided.placeholder}
+              {provided.placeholder}
             </div>
           )}
         </Droppable>
