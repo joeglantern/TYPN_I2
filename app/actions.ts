@@ -134,6 +134,32 @@ export async function createGalleryItem(data: {
   revalidatePath('/admin/gallery')
 }
 
+export async function updateGalleryItem(id: string, data: {
+  title?: string
+  description?: string
+  media_url?: string
+  show_in_carousel?: boolean
+}) {
+  const supabase = await createSupabaseServerClient()
+
+  const { error } = await supabase
+    .from('content')
+    .update({
+      ...data,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+    .eq('type', 'gallery')
+
+  if (error) {
+    console.error('Error updating gallery item:', error)
+    throw new Error('Failed to update gallery item')
+  }
+
+  revalidatePath('/gallery')
+  revalidatePath('/admin/gallery')
+}
+
 export async function createEvent(data: {
   title: string
   description: string

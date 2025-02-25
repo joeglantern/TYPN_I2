@@ -29,7 +29,9 @@ import {
   Trash,
   Eye,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Pencil,
+  Trash2
 } from "lucide-react"
 import Image from "next/image"
 import { Gallery, fetchGalleryItems, deleteGalleryItem, createContent } from "@/lib/supabase"
@@ -37,6 +39,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { GalleryUploadForm } from "@/components/admin/GalleryUploadForm"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/utils/supabase/client"
+import { updateGalleryItem } from "@/app/actions"
 
 export default function GalleryPage() {
   const router = useRouter()
@@ -49,14 +52,16 @@ export default function GalleryPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<Gallery | null>(null)
   const { toast } = useToast()
+  const supabase = createClient()
 
   async function loadGalleryItems() {
     try {
       setIsLoading(true)
       setError(null)
-      const { data, error } = await createClient()
-        .from('gallery')
+      const { data, error } = await supabase
+        .from('content')
         .select('*')
+        .eq('type', 'gallery')
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -120,14 +125,14 @@ export default function GalleryPage() {
         })
       } else {
         // Create new item
-        const { error } = await createClient()
-          .from('gallery')
-          .insert({
-            title: data.title || '',
-            image_url: data.media_url,
-            description: data.description || '',
-            show_in_carousel: data.show_in_carousel || false
-          })
+        const { error } = await supabase
+          .from('content')
+          .insert([{
+            ...data,
+            type: 'gallery',
+            status: 'published',
+            created_at: new Date().toISOString()
+          }])
 
         if (error) throw error
       }
