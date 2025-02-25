@@ -43,7 +43,11 @@ export default function CreateProgramPage() {
     try {
       let media_url = ""
       if (selectedImage) {
-        media_url = await uploadImage(selectedImage, 'programs')
+        media_url = await uploadImage(selectedImage, {
+          bucket: 'images',
+          folder: 'programs',
+          type: 'image'
+        })
       }
 
       await createProgram({
