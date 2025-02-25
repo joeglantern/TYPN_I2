@@ -57,12 +57,12 @@ export function Header() {
 
   async function checkSession() {
     const { data: { session } } = await supabase.auth.getSession()
-    setSession(session)
-    setLoading(false)
+      setSession(session)
+      setLoading(false)
   }
 
   async function handleSignOut() {
-    const { error } = await supabase.auth.signOut()
+      const { error } = await supabase.auth.signOut()
     if (error) {
       toast({
         variant: "destructive",
@@ -137,8 +137,8 @@ export function Header() {
                 <link.icon className="h-4 w-4 mr-2" />
                 {link.label}
               </Button>
-            </Link>
-          ))}
+              </Link>
+            ))}
           {/* Additional Navigation Links */}
           <Link href="/membership">
             <Button variant="ghost" size="sm" className="text-sm">
@@ -201,7 +201,7 @@ export function Header() {
             )
           )}
         </div>
-
+        
         {/* Mobile menu button */}
         <div className="flex md:hidden">
           <Button
@@ -244,7 +244,7 @@ export function Header() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="relative w-8 h-8">
-                        <Image
+                    <Image
                           src="/logo.png"
                           alt="TYPNI Logo"
                           fill
@@ -310,7 +310,7 @@ export function Header() {
                         >
                           <link.icon className="h-4 w-4 mr-2" />
                           {link.label}
-                        </Button>
+                </Button>
                       </Link>
                     ))}
                   </div>
@@ -320,17 +320,17 @@ export function Header() {
                     <div className="grid grid-cols-2 gap-2 pt-2 border-t">
                       <Button variant="outline" size="sm" className="w-full" asChild>
                         <Link href="/dashboard">
-                          Dashboard
+                  Dashboard
                         </Link>
                       </Button>
                       <Button variant="outline" size="sm" className="w-full" asChild>
                         <Link href="/dashboard/settings">
-                          Settings
+                  Settings
                         </Link>
-                      </Button>
-                    </div>
-                  )}
-                </div>
+              </Button>
+            </div>
+          )}
+          </div>
               </motion.div>
             </>
           )}

@@ -30,7 +30,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Plus, Pencil, Trash2, ArrowUpDown } from "lucide-react"
 import Image from "next/image"
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
+import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from "@hello-pangea/dnd"
 
 interface CarouselItem {
   id: number
@@ -137,7 +137,7 @@ export default function CarouselPage() {
     }
   }
 
-  async function handleDragEnd(result: any) {
+  async function handleDragEnd(result: DropResult) {
     if (!result.destination) return
 
     const newItems = Array.from(items)
@@ -240,7 +240,7 @@ export default function CarouselPage() {
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="carousel-items">
-          {(provided) => (
+          {(provided: DroppableProvided) => (
             <div
               {...provided.droppableProps}
               ref={provided.innerRef}
@@ -252,7 +252,7 @@ export default function CarouselPage() {
                   draggableId={item.id.toString()}
                   index={index}
                 >
-                  {(provided) => (
+                  {(provided: DraggableProvided) => (
                     <Card
                       ref={provided.innerRef}
                       {...provided.draggableProps}

@@ -118,7 +118,7 @@ body {
   }
 
   /* Animations */
-  .hover-lift {
+.hover-lift {
     @apply transition-transform duration-200;
 }
 
@@ -233,5 +233,7 @@ body {
 .slide-in {
   animation: slideIn 0.5s ease-out;
 }
+
+
 
 
