@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database } from './database.types'
+import { revalidatePath } from 'next/cache'
 
 export const supabase = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -161,7 +162,7 @@ export type ActivityLog = {
 }
 
 export interface Gallery {
-  id: number
+  id: string
   title: string
   description?: string
   image_url: string
@@ -470,37 +471,17 @@ export async function deleteDonation(id: number) {
   if (error) throw error
 }
 
-export async function deleteGalleryItem(id: number) {
-  try {
-    // First, get the image URL to delete from storage
-    const { data: item } = await supabase
-      .from('gallery')
-      .select('image_url')
-      .eq('id', id)
-      .single()
-
-    if (item?.image_url) {
-      // Extract the file path from the URL
-      const urlParts = item.image_url.split('/')
-      const fileName = urlParts[urlParts.length - 1]
-      
-      // Delete the image from storage
-      await supabase.storage
-        .from('gallery')
-        .remove([fileName])
-    }
-
-    // Delete the record from the gallery table
-    const { error } = await supabase
-      .from('gallery')
-      .delete()
-      .eq('id', id)
-
-    if (error) throw error
-  } catch (error) {
-    console.error('Error deleting gallery item:', error)
-    throw error
-  }
+export async function deleteGalleryItem(id: string) {
+  const { error } = await supabase
+    .from('content')
+    .delete()
+    .eq('id', id)
+    .eq('type', 'gallery')
+    
+  if (error) throw error
+  
+  revalidatePath('/gallery')
+  revalidatePath('/admin/gallery')
 }
 
 // Content management functions

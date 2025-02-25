@@ -47,7 +47,7 @@ export default function GalleryPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
-  const [isDeleting, setIsDeleting] = useState<number | null>(null)
+  const [isDeleting, setIsDeleting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<Gallery | null>(null)
@@ -161,7 +161,7 @@ export default function GalleryPage() {
     }
   }
 
-  async function handleDeleteItem(id: number) {
+  async function handleDeleteItem(id: string) {
     if (isDeleting === id) return
     
     try {
