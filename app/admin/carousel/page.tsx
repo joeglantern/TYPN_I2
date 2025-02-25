@@ -241,10 +241,10 @@ export default function CarouselPage() {
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="carousel-items">
-          {(provided) => (
+          {(droppableProvided: DroppableProvided) => (
             <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
+              {...droppableProvided.droppableProps}
+              ref={droppableProvided.innerRef}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               {items.map((item, index) => (
@@ -253,18 +253,14 @@ export default function CarouselPage() {
                   draggableId={item.id.toString()}
                   index={index}
                 >
-                  {(dragProvided) => (
+                  {(draggableProvided: DraggableProvided) => (
                     <div
-                      ref={dragProvided.innerRef}
-                      {...dragProvided.draggableProps}
+                      ref={draggableProvided.innerRef}
+                      {...draggableProvided.draggableProps}
+                      {...draggableProvided.dragHandleProps}
+                      className="group relative"
                     >
-                      <Card className="group relative">
-                        <div
-                          {...dragProvided.dragHandleProps}
-                          className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-move"
-                        >
-                          <ArrowUpDown className="w-4 h-4 text-white" />
-                        </div>
+                      <Card>
                         <CardHeader>
                           <CardTitle className="line-clamp-1">{item.title}</CardTitle>
                         </CardHeader>
@@ -311,7 +307,7 @@ export default function CarouselPage() {
                   )}
                 </Draggable>
               ))}
-              {provided.placeholder}
+              {droppableProvided.placeholder}
             </div>
           )}
         </Droppable>
