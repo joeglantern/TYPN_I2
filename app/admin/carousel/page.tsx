@@ -30,7 +30,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Plus, Pencil, Trash2, ArrowUpDown } from "lucide-react"
 import Image from "next/image"
-import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from "@hello-pangea/dnd"
+import type { DraggableProvided, DroppableProvided, DropResult } from "@hello-pangea/dnd"
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd"
 
 interface CarouselItem {
   id: number
@@ -240,7 +241,7 @@ export default function CarouselPage() {
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="carousel-items">
-          {(provided: DroppableProvided) => (
+          {(provided) => (
             <div
               {...provided.droppableProps}
               ref={provided.innerRef}
@@ -252,60 +253,61 @@ export default function CarouselPage() {
                   draggableId={item.id.toString()}
                   index={index}
                 >
-                  {(provided: DraggableProvided) => (
-                    <Card
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      className="group relative"
+                  {(dragProvided) => (
+                    <div
+                      ref={dragProvided.innerRef}
+                      {...dragProvided.draggableProps}
                     >
-                      <div
-                        {...provided.dragHandleProps}
-                        className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-move"
-                      >
-                        <ArrowUpDown className="w-4 h-4 text-white" />
-                      </div>
-                      <CardHeader>
-                        <CardTitle className="line-clamp-1">{item.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {item.media_type === 'image' ? (
-                          <div className="relative aspect-video rounded-lg overflow-hidden">
-                            <Image
-                              src={item.media_url}
-                              alt={item.title}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
-                            <video
-                              src={item.media_url}
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
-                          {item.description}
-                        </p>
-                      </CardContent>
-                      <CardFooter className="justify-between">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setIsEditing(item.id)}
+                      <Card className="group relative">
+                        <div
+                          {...dragProvided.dragHandleProps}
+                          className="absolute top-2 right-2 p-2 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-move"
                         >
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </CardFooter>
-                    </Card>
+                          <ArrowUpDown className="w-4 h-4 text-white" />
+                        </div>
+                        <CardHeader>
+                          <CardTitle className="line-clamp-1">{item.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {item.media_type === 'image' ? (
+                            <div className="relative aspect-video rounded-lg overflow-hidden">
+                              <Image
+                                src={item.media_url}
+                                alt={item.title}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                              <video
+                                src={item.media_url}
+                                className="absolute inset-0 w-full h-full object-cover"
+                              />
+                            </div>
+                          )}
+                          <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                            {item.description}
+                          </p>
+                        </CardContent>
+                        <CardFooter className="justify-between">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setIsEditing(item.id)}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    </div>
                   )}
                 </Draggable>
               ))}
